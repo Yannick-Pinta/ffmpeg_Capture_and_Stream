@@ -15,6 +15,10 @@ Desktop.ini
 
 # Logs
 *.log
+logs/
+
+# NSSM (downloaded during service install)
+services/nssm.exe
 
 # Temporary files
 *.tmp

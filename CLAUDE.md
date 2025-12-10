@@ -60,6 +60,35 @@ All settings are centralized in `config.bat`:
 | `list_devices.bat` | Lists DirectShow devices |
 | `check_nvenc.bat` | Verifies NVENC GPU support |
 
+### Windows Service Scripts (services/)
+
+| Script | Purpose |
+|--------|---------|
+| `install_services.bat` | Installs Windows services using NSSM (admin required) |
+| `uninstall_services.bat` | Removes all services |
+| `manage_services.bat` | Interactive menu for start/stop/status/logs |
+| `service_mediamtx.bat` | MediaMTX service wrapper (no loop) |
+| `service_stream.bat` | FFmpeg capture service wrapper (no loop) |
+| `service_webrtc.bat` | WebRTC transcoder service wrapper (no loop) |
+
+## Windows Services
+
+### Service Names
+- `FFmpeg_MediaMTX` - MediaMTX server (auto-start)
+- `FFmpeg_Stream` - Webcam capture (auto-start, depends on MediaMTX)
+- `FFmpeg_WebRTC` - Opus transcoder (manual start, depends on Stream)
+
+### Features
+- **Auto-restart**: NSSM restarts crashed services after 5 seconds
+- **Log rotation**: 10 MB per file, automatic rotation
+- **Dependencies**: Services start in correct order
+- **Logs location**: `logs/` directory
+
+### NSSM (Non-Sucking Service Manager)
+- Downloaded automatically by `install_services.bat`
+- Stored in `services/nssm.exe`
+- Source: https://nssm.cc/
+
 ## Ports Used
 
 | Port | Protocol | Service |
@@ -170,3 +199,4 @@ ffmpeg ^
 - Add web interface for control
 - Add automatic bitrate adjustment based on network
 - UDP multicast support
+- Email/SMS alerts on service failure

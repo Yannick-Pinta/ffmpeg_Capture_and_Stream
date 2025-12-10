@@ -193,6 +193,59 @@ Note : HLS a ~10-15 secondes de latence.
 | `stream_srt_server.bat` | Stream SRT point-à-point |
 | `receive_srt.bat` | Récepteur SRT (ffplay) |
 
+### Scripts de services Windows
+
+| Script | Description |
+|--------|-------------|
+| `services\install_services.bat` | Installe les services Windows (admin requis) |
+| `services\uninstall_services.bat` | Désinstalle les services |
+| `services\manage_services.bat` | Interface de gestion (start/stop/status/logs) |
+
+## Mode Service Windows
+
+Pour un fonctionnement stable en production avec démarrage automatique au boot.
+
+### Installation des services
+
+```cmd
+cd services
+install_services.bat
+```
+
+> **Note** : Exécuter en tant qu'administrateur. Le script télécharge automatiquement NSSM.
+
+### Services installés
+
+| Service | Démarrage | Description |
+|---------|-----------|-------------|
+| `FFmpeg_MediaMTX` | Auto | Serveur de redistribution |
+| `FFmpeg_Stream` | Auto | Capture webcam (dépend de MediaMTX) |
+| `FFmpeg_WebRTC` | Manuel | Transcodeur Opus (optionnel) |
+
+### Fonctionnalités
+
+- **Démarrage automatique** au boot de Windows
+- **Redémarrage automatique** en cas de crash (délai 5s)
+- **Logs avec rotation** : 10 Mo max par fichier
+- **Dépendances** : FFmpeg attend que MediaMTX soit prêt
+
+### Gestion des services
+
+```cmd
+services\manage_services.bat
+```
+
+Ou via `services.msc` (Gestionnaire de services Windows).
+
+### Logs
+
+Les logs sont dans `logs\` :
+- `mediamtx.log`
+- `ffmpeg_stream.log`
+- `ffmpeg_webrtc.log`
+
+Rotation automatique à 10 Mo.
+
 ## Architecture
 
 ```
