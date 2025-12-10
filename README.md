@@ -93,8 +93,8 @@ stream_webrtc.bat
 |-----------|-----|-------|---------|
 | SRT | `srt://IP:8890?streamid=read:webcam` | AAC ✓ | ~100-200ms |
 | RTSP | `rtsp://IP:8554/webcam` | AAC ✓ | ~500ms |
-| HLS (navigateur) | `http://IP:8888/webcam` | AAC ✓ | ~10-15s |
-| WebRTC | `http://IP:8889/webcam_webrtc` | Opus ✓ | ~200-500ms |
+| HLS (navigateur ready) | `http://IP:8888/webcam` | AAC ✓ | ~10-15s |
+| WebRTC (navigateur ready) | `http://IP:8889/webcam_webrtc` | Opus ✓ | ~200-500ms |
 
 Remplacez `IP` par l'adresse de la machine streamer (ex: `192.168.1.159` ou `127.0.0.1` en local).
 
