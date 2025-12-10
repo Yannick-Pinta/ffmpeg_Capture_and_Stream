@@ -27,11 +27,13 @@ echo  COMMENT UTILISER:
 echo.
 echo  1. Garder ce serveur ouvert
 echo  2. Lancer stream_to_mediamtx.bat
-echo  3. Connecter les clients :
+echo  3. (Optionnel) Lancer stream_webrtc.bat pour WebRTC avec audio
+echo  4. Connecter les clients :
 echo.
-echo     SRT:   srt://%MY_IP%:8890?streamid=read:%STREAM_NAME%
-echo     RTSP:  rtsp://%MY_IP%:8554/%STREAM_NAME%
-echo     HLS:   http://%MY_IP%:8888/%STREAM_NAME%
+echo     SRT:    srt://%MY_IP%:8890?streamid=read:%STREAM_NAME%
+echo     RTSP:   rtsp://%MY_IP%:8554/%STREAM_NAME%
+echo     HLS:    http://%MY_IP%:8888/%STREAM_NAME%
+echo     WebRTC: http://%MY_IP%:8889/%STREAM_NAME%_webrtc (avec audio)
 echo.
 echo  Ctrl+C pour arreter le serveur.
 echo.

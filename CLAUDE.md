@@ -52,8 +52,9 @@ All settings are centralized in `config.bat`:
 |--------|---------|
 | `install.bat` | Downloads FFmpeg and MediaMTX |
 | `config.bat` | Central configuration file |
-| `stream_to_mediamtx.bat` | Main streaming script (multi-client) |
 | `start_mediamtx.bat` | Starts MediaMTX relay server |
+| `stream_to_mediamtx.bat` | Main streaming script (AAC audio for SRT/HLS/RTSP) |
+| `stream_webrtc.bat` | Transcodes AAC→Opus for WebRTC with audio |
 | `stream_srt_server.bat` | Point-to-point SRT streaming |
 | `receive_srt.bat` | SRT receiver (ffplay) |
 | `list_devices.bat` | Lists DirectShow devices |
@@ -88,6 +89,11 @@ rtsp://192.168.1.159:8554/webcam
 http://192.168.1.159:8888/webcam
 ```
 
+### WebRTC with audio (requires stream_webrtc.bat)
+```
+http://192.168.1.159:8889/webcam_webrtc
+```
+
 ## Known Issues & Solutions
 
 ### YUV422 not supported by NVENC
@@ -105,6 +111,17 @@ http://192.168.1.159:8888/webcam
 ### SRT streamid format for MediaMTX
 - **Publish**: `streamid=publish:webcam`
 - **Read**: `streamid=read:webcam`
+
+### WebRTC no audio with AAC
+- **Problem**: WebRTC doesn't support AAC codec, only Opus
+- **Solution**: Use `stream_webrtc.bat` to transcode AAC→Opus and publish to `webcam_webrtc` path
+- **Note**: MediaMTX will show HLS errors for webcam_webrtc (Opus not supported by MPEG-TS HLS) - these are harmless
+
+### HLS errors "MPEG-TS variant supports MPEG-4 Audio only"
+- **Problem**: MediaMTX creates HLS muxer for all paths, but Opus is not supported
+- **Cause**: `stream_webrtc.bat` publishes Opus audio to `webcam_webrtc` path
+- **Impact**: None - WebRTC works fine, only HLS fails for that path (which is expected)
+- **Solution**: Cannot disable HLS per-path in MediaMTX - ignore the errors
 
 ## FFmpeg Command Structure
 
@@ -130,6 +147,20 @@ ffmpeg ^
 - Streaming scripts loop automatically on disconnect
 - `.gitignore` excludes `ffmpeg/` and `mediamtx/*.exe` (downloaded during install)
 
+## Audio Codec Compatibility
+
+| Protocol | AAC | Opus | Notes |
+|----------|-----|------|-------|
+| SRT (MPEG-TS) | ✓ | ✗ | MPEG-TS only supports AAC |
+| RTSP | ✓ | ✓ | Both supported |
+| HLS (MPEG-TS) | ✓ | ✗ | MPEG-TS only supports AAC |
+| HLS (fMP4) | ✓ | ✓ | But breaks SRT compatibility |
+| WebRTC | ✗ | ✓ | Web standard requires Opus |
+
+**Current solution**: Two separate streams
+- `webcam` (AAC) → SRT, RTSP, HLS
+- `webcam_webrtc` (Opus) → WebRTC
+
 ## Future Improvements Ideas
 
 - Add recording to local file option
@@ -138,3 +169,4 @@ ffmpeg ^
 - Add audio mixer for multiple sources
 - Add web interface for control
 - Add automatic bitrate adjustment based on network
+- UDP multicast support

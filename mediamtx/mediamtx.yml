@@ -1,6 +1,8 @@
 # MediaMTX Configuration
 # Accepte tous les streams dynamiquement
 
+# Niveaux: debug, info, warn, error
+# Note: les erreurs HLS pour webcam_webrtc (Opus) sont normales et inoffensives
 logLevel: info
 
 # Ports
@@ -10,15 +12,30 @@ rtspAddress: :8554
 rtmp: yes
 rtmpAddress: :1935
 
+# HLS
 hls: yes
 hlsAddress: :8888
+hlsVariant: mpegts
+hlsSegmentCount: 5
+hlsSegmentDuration: 1s
+hlsSegmentMaxSize: 50M
+hlsAlwaysRemux: yes
 
+# WebRTC
 webrtc: yes
 webrtcAddress: :8889
 
+# SRT
 srt: yes
 srtAddress: :8890
 
-# Accepter TOUS les chemins dynamiquement
+# Chemins
 paths:
-  all:
+  # Flux principal AAC - tous protocoles
+  webcam:
+
+  # Flux WebRTC Opus (Opus incompatible avec HLS MPEG-TS - messages d'erreur normaux)
+  webcam_webrtc:
+
+  # Autres flux dynamiques
+  all_others:

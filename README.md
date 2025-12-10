@@ -82,16 +82,23 @@ start_mediamtx.bat
 stream_to_mediamtx.bat
 ```
 
+**Terminal 3 - Transcodeur WebRTC (optionnel, pour audio WebRTC) :**
+```cmd
+stream_webrtc.bat
+```
+
 **Clients (autant que vous voulez) :**
 
-| Protocole | URL |
-|-----------|-----|
-| SRT | `srt://IP:8890?streamid=read:webcam` |
-| RTSP | `rtsp://IP:8554/webcam` |
-| HLS (navigateur) | `http://IP:8888/webcam` |
-| WebRTC | `http://IP:8889/webcam` |
+| Protocole | URL | Audio | Latence |
+|-----------|-----|-------|---------|
+| SRT | `srt://IP:8890?streamid=read:webcam` | AAC ✓ | ~100-200ms |
+| RTSP | `rtsp://IP:8554/webcam` | AAC ✓ | ~500ms |
+| HLS (navigateur) | `http://IP:8888/webcam` | AAC ✓ | ~10-15s |
+| WebRTC | `http://IP:8889/webcam_webrtc` | Opus ✓ | ~200-500ms |
 
 Remplacez `IP` par l'adresse de la machine streamer (ex: `192.168.1.159` ou `127.0.0.1` en local).
+
+> **Note WebRTC** : Le flux `webcam` de base n'a pas d'audio en WebRTC (WebRTC ne supporte pas AAC). Utilisez `webcam_webrtc` qui est transcodé en Opus par `stream_webrtc.bat`.
 
 ## Configuration
 
@@ -180,28 +187,35 @@ Note : HLS a ~10-15 secondes de latence.
 | `install.bat` | Installation automatique de FFmpeg et MediaMTX |
 | `list_devices.bat` | Liste les webcams et micros disponibles |
 | `check_nvenc.bat` | Vérifie le support NVENC (GPU NVIDIA) |
-| `stream_srt_server.bat` | Stream SRT point-à-point |
-| `stream_to_mediamtx.bat` | Stream vers MediaMTX (multi-clients) |
 | `start_mediamtx.bat` | Démarre le serveur MediaMTX |
+| `stream_to_mediamtx.bat` | Stream principal vers MediaMTX (AAC) |
+| `stream_webrtc.bat` | Transcodeur AAC→Opus pour WebRTC avec audio |
+| `stream_srt_server.bat` | Stream SRT point-à-point |
 | `receive_srt.bat` | Récepteur SRT (ffplay) |
-| `stream_srt_x264.bat` | Stream avec encodage CPU (sans GPU) |
 
 ## Architecture
 
 ```
-┌─────────────┐     SRT      ┌───────────┐     SRT/RTSP/HLS     ┌─────────────┐
-│   Webcam    │──────────────│  MediaMTX │─────────────────────│   Client 1  │
-│   + Micro   │   (publish)  │  Server   │                      └─────────────┘
-└─────────────┘              │           │     SRT/RTSP/HLS     ┌─────────────┐
-       │                     │           │─────────────────────│   Client 2  │
-       │ FFmpeg              │           │                      └─────────────┘
-       │ (NVENC)             │           │     SRT/RTSP/HLS     ┌─────────────┐
-       ▼                     │           │─────────────────────│   Client N  │
-┌─────────────┐              └───────────┘                      └─────────────┘
-│  Encodage   │
-│  H.264 AAC  │
-└─────────────┘
+┌─────────────┐                          ┌───────────┐
+│   Webcam    │    stream_to_mediamtx    │           │     SRT (AAC)      ┌─────────────┐
+│   + Micro   │ ─────────────────────────│           │───────────────────│  VLC/ffplay │
+└─────────────┘    SRT (H.264 + AAC)     │           │                    └─────────────┘
+                                         │           │     RTSP (AAC)     ┌─────────────┐
+                                         │  MediaMTX │───────────────────│  VLC Mobile │
+┌─────────────┐                          │  Server   │                    └─────────────┘
+│   FFmpeg    │     stream_webrtc        │           │     HLS (AAC)      ┌─────────────┐
+│  Transcoder │ ─────────────────────────│           │───────────────────│  Navigateur │
+│  AAC→Opus   │    RTSP (H.264 + Opus)   │           │                    └─────────────┘
+└─────────────┘                          │           │    WebRTC (Opus)   ┌─────────────┐
+      ↑                                  │           │───────────────────│  Navigateur │
+      │ Lit le flux SRT                  └───────────┘                    └─────────────┘
+      └──────────────────────────────────────┘
 ```
+
+**Pourquoi deux flux ?**
+- WebRTC ne supporte pas le codec AAC (standard web)
+- SRT/HLS/RTSP ne supportent pas Opus dans MPEG-TS
+- Solution : flux AAC pour SRT/HLS/RTSP, flux Opus séparé pour WebRTC
 
 ## Dépannage
 
@@ -226,6 +240,18 @@ Note : HLS a ~10-15 secondes de latence.
 
 - Normal au démarrage, devrait se stabiliser
 - Réduisez la résolution ou le bitrate si ça persiste
+
+### Erreurs HLS répétées "MPEG-TS variant supports MPEG-4 Audio only"
+
+- Normal si vous utilisez `stream_webrtc.bat`
+- MediaMTX essaie de créer un flux HLS pour le chemin Opus (webcam_webrtc)
+- HLS ne supporte pas Opus, d'où l'erreur
+- **Le WebRTC fonctionne correctement malgré ces messages**
+
+### Pas d'audio en WebRTC
+
+- Le flux `webcam` n'a pas d'audio en WebRTC (AAC non supporté)
+- Lancez `stream_webrtc.bat` et utilisez `webcam_webrtc` à la place
 
 ## Ports utilisés
 
