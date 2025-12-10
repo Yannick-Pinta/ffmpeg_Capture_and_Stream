@@ -1,0 +1,24 @@
+# MediaMTX Configuration
+# Accepte tous les streams dynamiquement
+
+logLevel: info
+
+# Ports
+rtsp: yes
+rtspAddress: :8554
+
+rtmp: yes
+rtmpAddress: :1935
+
+hls: yes
+hlsAddress: :8888
+
+webrtc: yes
+webrtcAddress: :8889
+
+srt: yes
+srtAddress: :8890
+
+# Accepter TOUS les chemins dynamiquement
+paths:
+  all:
