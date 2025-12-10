@@ -1,4 +1,4 @@
-# FFmpeg SRT ReStreamer
+# FFmpeg Capture and Stream
 
 Système de streaming vidéo en temps réel utilisant **FFmpeg**, **SRT** et **MediaMTX** sous Windows.
 
@@ -26,8 +26,8 @@ Capture une webcam et un microphone, encode avec NVENC (GPU NVIDIA) et redistrib
 ### 1. Cloner le dépôt
 
 ```cmd
-git clone https://github.com/VOTRE_USERNAME/ffmpeg_ReStreamer.git
-cd ffmpeg_ReStreamer
+git clone https://github.com/Yannick-Pinta/ffmpeg_Capture_and_Stream.git
+cd ffmpeg_Capture_and_Stream
 ```
 
 ### 2. Lancer l'installation automatique
